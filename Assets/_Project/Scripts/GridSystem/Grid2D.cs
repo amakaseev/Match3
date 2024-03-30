@@ -14,13 +14,6 @@ namespace Match3 {
 
     public event Action<int, int, T> OnValueChangeEvent;
 
-    public static Grid2D<T> VerticalGrid(int width, int height, float cellSize, Vector3 origin) {
-      return new Grid2D<T>(width, height, cellSize, origin, new VerticalConverter());
-    }
-    public static Grid2D<T> HorizontalGrid(int width, int height, float cellSize, Vector3 origin) {
-      return new Grid2D<T>(width, height, cellSize, origin, new HorizontalConverter());
-    }
-
     public Grid2D(int width, int height, float cellSize, Vector3 origin, CoordinateConverter coordinateConverter) {
       this.width = width;
       this.height = height;

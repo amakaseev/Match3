@@ -8,11 +8,12 @@ namespace Match3 {
     [SerializeField] int height = 8;
     [SerializeField] float cellSize = 1.0f;
     [SerializeField] Vector3 originPosition = Vector3.zero;
+    [SerializeField] Orientation orientation = Orientation.Vertical;
 
     Grid2D<GridObject<Gem>> grid;
 
     void Start () {
-      grid = Grid2D<GridObject<Gem>>.VerticalGrid(width, height, cellSize, originPosition);
+      grid = Grid2D<GridObject<Gem>>.Grid2DHelpers.CreateGrid(width, height, cellSize, originPosition, orientation);
     }
 
     private void OnDrawGizmos() {

@@ -375,6 +375,7 @@ MonoBehaviour:
   height: 8
   cellSize: 1
   originPosition: {x: 0, y: 0, z: 0}
+  orientation: 0
 --- !u!4 &1736602970
 Transform:
   m_ObjectHideFlags: 0
