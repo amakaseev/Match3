@@ -14,6 +14,8 @@
     public void SetValue(T gem) {
       this.gem = gem;
     }
+
+    public T GetValue() => gem;
   }
 
 }
