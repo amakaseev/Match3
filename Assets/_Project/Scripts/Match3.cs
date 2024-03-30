@@ -15,12 +15,15 @@ namespace Match3 {
 
     [SerializeField] Gem gemPrefab;
     [SerializeField] GemType[] gemTypes;
-    [SerializeField] Ease ease = Ease.InQuad;
+    [SerializeField] float swapDuration = 0.5f;
+    [SerializeField] Ease easeSelect = Ease.InQuad;
+    [SerializeField] Ease easeSwap = Ease.OutBack;
 
     Grid2D<GridObject<Gem>> grid;
 
     InputReader inputReader;
     Vector2Int selectedGem = new Vector2Int(-1, -1);
+    Tweener selectedTweener;
 
     private void Awake() {
       inputReader = GetComponent<InputReader>();
@@ -68,16 +71,40 @@ namespace Match3 {
       }
     }
 
-    void SelectGem(Vector2Int gridPos) => selectedGem = gridPos;
-    void DeselectGem() => selectedGem = new Vector2Int(-1, -1);
+    void SelectGem(Vector2Int gridPos) {
+      selectedGem = gridPos;
+
+      var gridObject = grid.GetValue(gridPos.x, gridPos.y);
+
+      if (selectedTweener != null) {
+        selectedTweener.Kill();
+      }
+
+      selectedTweener = gridObject.GetValue().transform
+        .DOScale(1.2f, 0.25f)
+        .SetEase(easeSelect)
+        .SetLoops(-1, LoopType.Yoyo);
+    }
+
+    void DeselectGem() {
+      var gridObject = grid.GetValue(selectedGem.x, selectedGem.y);
+      gridObject.GetValue().transform.localScale = Vector3.one;
+
+      if (selectedTweener != null) {
+        selectedTweener.Kill();
+        selectedTweener = null;
+      }
+
+      selectedGem = new Vector2Int(-1, -1);
+    }
 
     bool IsValidatePosition(Vector2Int pos) => pos.x >= 0 && pos.y >= 0 && pos.x < width && pos.y < height;
     bool IsEmptyPosition(Vector2Int pos) => grid.GetValue(pos.x, pos.y) == null;
 
     IEnumerator RunGameLoop(Vector2Int gridPosA, Vector2Int gridPosB) {
-      StartCoroutine(SwapGems(gridPosA, gridPosB));
-
       DeselectGem();
+
+      StartCoroutine(SwapGems(gridPosA, gridPosB));
       yield return null;
     }
 
@@ -86,16 +113,16 @@ namespace Match3 {
       var gridObjectB = grid.GetValue(gridPosB.x, gridPosB.y);
 
       gridObjectA.GetValue().transform
-        .DOLocalMove(grid.GetWorldPositionCenter(gridPosB.x, gridPosB.y), 0.5f)
-        .SetEase(ease);
+        .DOLocalMove(grid.GetWorldPositionCenter(gridPosB.x, gridPosB.y), swapDuration)
+        .SetEase(easeSwap);
       gridObjectB.GetValue().transform
-        .DOLocalMove(grid.GetWorldPositionCenter(gridPosA.x, gridPosA.y), 0.5f)
-        .SetEase(ease);
+        .DOLocalMove(grid.GetWorldPositionCenter(gridPosA.x, gridPosA.y), swapDuration)
+        .SetEase(easeSwap);
 
       grid.SetValue(gridPosA.x, gridPosA.y, gridObjectB);
       grid.SetValue(gridPosB.x, gridPosB.y, gridObjectA);
 
-      yield return new WaitForSeconds(0.5f);
+      yield return new WaitForSeconds(swapDuration);
     }
 
     private void OnDrawGizmos() {
