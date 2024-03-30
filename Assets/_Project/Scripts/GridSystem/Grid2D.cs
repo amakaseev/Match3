@@ -55,8 +55,8 @@ namespace Match3 {
 #if UNITY_EDITOR
       Vector3 GetWorldPosition(int x, int y) => coordinateConverter.GridToWorld(x, y, cellSize, origin);
 
-      for (int x = 0; x < width; ++x) {
-        for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
           UnityEditor.Handles.color = Color.red;
           UnityEditor.Handles.Label(GetWorldPositionCenter(x, y), $"{x},{y}", new GUIStyle { alignment = TextAnchor.MiddleCenter, fontSize = Mathf.FloorToInt(14 * cellSize), normal = new GUIStyleState { textColor = Color.red } });
           Gizmos.DrawLine(GetWorldPosition(x, y), GetWorldPosition(x, y + 1));

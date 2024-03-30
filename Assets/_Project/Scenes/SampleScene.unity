@@ -353,7 +353,7 @@ GameObject:
   - component: {fileID: 1736602970}
   - component: {fileID: 1736602969}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Match3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -376,6 +376,13 @@ MonoBehaviour:
   cellSize: 1
   originPosition: {x: 0, y: 0, z: 0}
   orientation: 0
+  gemPrefab: {fileID: -7386264899797857356, guid: 963bb222c65f17a40bae63de921b30ca, type: 3}
+  gemTypes:
+  - {fileID: 11400000, guid: 50e8be6ba55d5e048a6e892123aa2095, type: 2}
+  - {fileID: 11400000, guid: 98d04cf2a1c58ff4e9fa27b120da2980, type: 2}
+  - {fileID: 11400000, guid: 371b778b2f46da548be631d1fe13ec94, type: 2}
+  - {fileID: 11400000, guid: d6d061e8a783c9b478632256735dae68, type: 2}
+  - {fileID: 11400000, guid: 19aea7a1ef6007d49ada5c06336ee087, type: 2}
 --- !u!4 &1736602970
 Transform:
   m_ObjectHideFlags: 0
