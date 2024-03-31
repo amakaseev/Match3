@@ -1,8 +1,7 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using DG.Tweening;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Match3 {
 
@@ -104,8 +103,59 @@ namespace Match3 {
     IEnumerator RunGameLoop(Vector2Int gridPosA, Vector2Int gridPosB) {
       DeselectGem();
 
+      // Swap gems
       StartCoroutine(SwapGems(gridPosA, gridPosB));
+
+      // Matches?
+      List<Vector2Int> matches = FindMatches();
+
+      // Explode gems
+      StartCoroutine(ExplodeGems(matches));
+
       yield return null;
+    }
+
+    List<Vector2Int> FindMatches() {
+      HashSet<Vector2Int> matches = new();
+
+      // Horizontal
+      for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+          var gemA = grid.GetValue(x, y);
+          var gemB = grid.GetValue(x + 1, y);
+          var gemC = grid.GetValue(x + 2, y);
+
+          if (gemA == null || gemB == null || gemC == null) continue;
+
+          if (gemA.GetValue().Type == gemB.GetValue().Type && gemC.GetValue().Type == gemC.GetValue().Type) {
+            matches.Add(new Vector2Int(x, y));
+            matches.Add(new Vector2Int(x + 1, y));
+            matches.Add(new Vector2Int(x + 2, y));
+          }
+        }
+      }
+
+      // Vertical
+      for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+          var gemA = grid.GetValue(x, y);
+          var gemB = grid.GetValue(x, y + 1);
+          var gemC = grid.GetValue(x, y + 2);
+
+          if (gemA == null || gemB == null || gemC == null)
+            continue;
+
+          if (gemA.GetValue().Type == gemB.GetValue().Type && gemC.GetValue().Type == gemC.GetValue().Type) {
+            matches.Add(new Vector2Int(x, y));
+            matches.Add(new Vector2Int(x, y + 1));
+            matches.Add(new Vector2Int(x, y + 2));
+          }
+        }
+      }
+
+
+
+      return new List<Vector2Int>(matches);
     }
 
     IEnumerator SwapGems(Vector2Int gridPosA, Vector2Int gridPosB) {
@@ -123,6 +173,22 @@ namespace Match3 {
       grid.SetValue(gridPosB.x, gridPosB.y, gridObjectA);
 
       yield return new WaitForSeconds(swapDuration);
+    }
+
+    IEnumerator ExplodeGems(List<Vector2Int> matches) {
+      float explodeDuration = 0.1f;
+
+      foreach (var match in matches) {
+        var gem = grid.GetValue(match.x, match.y).GetValue();
+        grid.SetValue(match.x, match.y, null);
+
+        // Explode VFX
+
+        gem.transform.DOPunchScale(Vector3.one * 0.1f, explodeDuration, 1, 0.5f);
+
+        yield return new WaitForSeconds(explodeDuration);
+        gem.DestroyGem();
+      }
     }
 
     private void OnDrawGizmos() {

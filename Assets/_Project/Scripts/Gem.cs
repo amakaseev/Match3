@@ -13,6 +13,8 @@ namespace Match3 {
         GetComponent<SpriteRenderer>().sprite = value.sprite;
       }
     }
+
+    public void DestroyGem() => Destroy(gameObject);
   }
 
 }
