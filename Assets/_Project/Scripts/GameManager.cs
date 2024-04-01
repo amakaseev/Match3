@@ -1,23 +1,25 @@
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Match3 {
 
   public class GameManager: MonoBehaviour {
-    [SerializeField] GameObject activeBackground;
-    [SerializeField] GameObject deactiveBackground;
+    [SerializeField] CanvasGroup mainMenu;
+    [SerializeField] CanvasGroup gameUI;
     [SerializeField] Match3 gameBoardPrefab;
 
     Match3 gameBoard;
 
     private void Start() {
-      activeBackground.SetActive(false);
-      deactiveBackground.SetActive(true);
+      mainMenu.gameObject.SetActive(true);
+      gameUI.gameObject.SetActive(false);
     }
 
     public void StartGame() {
       // TODO: add cross fade
-      activeBackground.SetActive(true);
-      deactiveBackground.SetActive(false);
+      mainMenu.gameObject.SetActive(false);
+      gameUI.gameObject.SetActive(true);
 
       if (gameBoard != null) {
         Destroy(gameBoard);

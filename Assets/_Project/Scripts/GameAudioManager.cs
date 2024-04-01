@@ -3,7 +3,7 @@
 namespace Match3 {
 
   [RequireComponent(typeof(AudioSource))]
-  public class AudioManager : MonoBehaviour {
+  public class GameAudioManager : MonoBehaviour {
     [SerializeField] AudioClip select;
     [SerializeField] AudioClip deselect;
     [SerializeField] AudioClip match;

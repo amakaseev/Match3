@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Net.WebSockets;
 using DG.Tweening;
 using UnityEngine;
 
@@ -21,9 +20,10 @@ namespace Match3 {
     [SerializeField] Ease easeSwap = Ease.OutBack;
     [SerializeField] Ease fallEase = Ease.OutBack;
 
-    [SerializeField] GameObject explosion;
+    [SerializeField] GameObject spawnVfx;
+    [SerializeField] GameObject explosionVfx;
 
-    AudioManager audioManager;
+    GameAudioManager audioManager;
 
     Grid2D<GridObject<Gem>> grid;
 
@@ -34,7 +34,7 @@ namespace Match3 {
 
     private void Awake() {
       inputReader = GetComponent<InputReader>();
-      audioManager = GetComponent<AudioManager>();
+      audioManager = GetComponent<GameAudioManager>();
     }
 
     private void Start() {
@@ -56,12 +56,14 @@ namespace Match3 {
       }
     }
 
-    void CreateGem(int x, int y) {
+    Gem CreateGem(int x, int y) {
       Gem gem = Instantiate(gemPrefab, grid.GetWorldPositionCenter(x, y), Quaternion.identity, transform);
       gem.Type = gemTypes[Random.Range(0, gemTypes.Length)];
       var gridObject = new GridObject<Gem>(grid, x, y);
       gridObject.SetValue(gem);
       grid.SetValue(x, y, gridObject);
+
+      return gem;
     }
 
     void OnSelectedGem() {
@@ -221,7 +223,7 @@ namespace Match3 {
 
     void ExplodeVFX(Vector2Int pos) {
       // TODO: Pool objects
-      var vfx = Instantiate(explosion, transform);
+      var vfx = Instantiate(explosionVfx, transform);
       vfx.transform.position = grid.GetWorldPositionCenter(pos.x, pos.y);
       Destroy(vfx, 2f);
 
@@ -256,12 +258,22 @@ namespace Match3 {
       for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
           if (grid.GetValue(x, y) == null) {
-            CreateGem(x, y);
-            audioManager.PlaySpawn();
+            var gem = CreateGem(x, y);
+            gem.transform.DOPunchScale(Vector3.one * 0.1f, explodeDuration, 1, 0.5f);
+            SpawnVFX(new Vector2Int(x, y));
             yield return new WaitForSeconds(0.1f);
           }
         }
       }
+    }
+
+    void SpawnVFX(Vector2Int pos) {
+      // TODO: Pool objects
+      var vfx = Instantiate(spawnVfx, transform);
+      vfx.transform.position = grid.GetWorldPositionCenter(pos.x, pos.y);
+      Destroy(vfx, 2f);
+
+      audioManager.PlaySpawn();
     }
 
     private void OnDrawGizmos() {
