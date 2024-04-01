@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Net.WebSockets;
 using DG.Tweening;
 using UnityEngine;
 
@@ -20,6 +21,10 @@ namespace Match3 {
     [SerializeField] Ease easeSwap = Ease.OutBack;
     [SerializeField] Ease fallEase = Ease.OutBack;
 
+    [SerializeField] GameObject explosion;
+
+    AudioManager audioManager;
+
     Grid2D<GridObject<Gem>> grid;
 
     InputReader inputReader;
@@ -29,6 +34,7 @@ namespace Match3 {
 
     private void Awake() {
       inputReader = GetComponent<InputReader>();
+      audioManager = GetComponent<AudioManager>();
     }
 
     private void Start() {
@@ -65,15 +71,16 @@ namespace Match3 {
       var gridPos = grid.GetXY(Camera.main.ScreenToWorldPoint(inputReader.Selected));
 
       if (!IsValidatePosition(gridPos) || IsEmptyPosition(gridPos)) {
-        DeselectGem();
         return;
       }
         
 
       if (selectedGem == gridPos) {
         DeselectGem();
+        audioManager.PlayDeselect();
       } else if (selectedGem.x == -1 && selectedGem.y == -1) {
         SelectGem(gridPos);
+        audioManager.PlaySelect();
       } else {
         StartCoroutine(RunGameLoop(selectedGem, gridPos));
       }
@@ -117,6 +124,7 @@ namespace Match3 {
       gridIsLocked = true;
 
       // Swap gems
+      audioManager.PlayMatch(); // TODO: audioManager.PlayNoMatch();
       yield return StartCoroutine(SwapGems(gridPosA, gridPosB));
 
       // Matches?
@@ -174,7 +182,7 @@ namespace Match3 {
           }
         }
       }
-      
+
       return new List<Vector2Int>(matches);
     }
 
@@ -202,12 +210,22 @@ namespace Match3 {
         var gem = grid.GetValue(match.x, match.y).GetValue();
         grid.SetValue(match.x, match.y, null);
 
+        ExplodeVFX(match);
+
         gem.transform.DOPunchScale(Vector3.one * 0.1f, explodeDuration, 1, 0.5f);
-        // Explode VFX, SFX
 
         yield return new WaitForSeconds(explodeDuration);
         gem.DestroyGem();
       }
+    }
+
+    void ExplodeVFX(Vector2Int pos) {
+      // TODO: Pool objects
+      var vfx = Instantiate(explosion, transform);
+      vfx.transform.position = grid.GetWorldPositionCenter(pos.x, pos.y);
+      Destroy(vfx, 2f);
+
+      audioManager.PlayExplosion();
     }
 
     IEnumerator MakeGemsFall() {
@@ -221,9 +239,10 @@ namespace Match3 {
                 grid.SetValue(x, i, null);
                 gem.transform
                   .DOLocalMove(grid.GetWorldPositionCenter(x, y), 0.5f)
-                  .SetEase(fallEase);
+                  .SetEase(fallEase)
+                  .OnComplete(() => { /*audioManager.PlayFell();*/ });
 
-                // Play SFX?
+                audioManager.PlayFall();
                 yield return new WaitForSeconds(0.1f);
                 break;
               }
@@ -238,7 +257,7 @@ namespace Match3 {
         for (int y = 0; y < height; y++) {
           if (grid.GetValue(x, y) == null) {
             CreateGem(x, y);
-            // Play SFX?
+            audioManager.PlaySpawn();
             yield return new WaitForSeconds(0.1f);
           }
         }
