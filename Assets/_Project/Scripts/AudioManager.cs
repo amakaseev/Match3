@@ -15,10 +15,8 @@ namespace Match3 {
 
     AudioSource audioSource;
 
-    private void OnValidate() {
-      if (audioSource == null) {
-        audioSource = GetComponent<AudioSource>();
-      }
+    private void Start() {
+      audioSource = GetComponent<AudioSource>();
     }
 
     public void PlaySelect() => audioSource.PlayOneShot(select);
