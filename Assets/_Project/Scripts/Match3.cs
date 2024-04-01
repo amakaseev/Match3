@@ -15,15 +15,17 @@ namespace Match3 {
     [SerializeField] Gem gemPrefab;
     [SerializeField] GemType[] gemTypes;
     [SerializeField] float swapDuration = 0.5f;
-    [SerializeField] float explodeDuration = 0.05f;
+    [SerializeField] float explodeDuration = 0.1f;
     [SerializeField] Ease easeSelect = Ease.InQuad;
     [SerializeField] Ease easeSwap = Ease.OutBack;
+    [SerializeField] Ease fallEase = Ease.OutBack;
 
     Grid2D<GridObject<Gem>> grid;
 
     InputReader inputReader;
     Vector2Int selectedGem = new Vector2Int(-1, -1);
     Tweener selectedTweener;
+    bool gridIsLocked = false;
 
     private void Awake() {
       inputReader = GetComponent<InputReader>();
@@ -57,6 +59,9 @@ namespace Match3 {
     }
 
     void OnSelectedGem() {
+      if (gridIsLocked)
+        return;
+
       var gridPos = grid.GetXY(Camera.main.ScreenToWorldPoint(inputReader.Selected));
 
       if (!IsValidatePosition(gridPos) || IsEmptyPosition(gridPos)) {
@@ -91,7 +96,9 @@ namespace Match3 {
 
     void DeselectGem() {
       var gridObject = grid.GetValue(selectedGem.x, selectedGem.y);
-      gridObject.GetValue().transform.localScale = Vector3.one;
+      if (gridObject != null) {
+        gridObject.GetValue().transform.localScale = Vector3.one;
+      }
 
       if (selectedTweener != null) {
         selectedTweener.Kill();
@@ -107,14 +114,24 @@ namespace Match3 {
     IEnumerator RunGameLoop(Vector2Int gridPosA, Vector2Int gridPosB) {
       DeselectGem();
 
+      gridIsLocked = true;
+
       // Swap gems
       yield return StartCoroutine(SwapGems(gridPosA, gridPosB));
 
       // Matches?
       List<Vector2Int> matches = FindMatches();
+      while (matches.Count > 0) {
+        // Explode gems
+        yield return StartCoroutine(ExplodeGems(matches));
+        // Make gems fall
+        yield return StartCoroutine(MakeGemsFall());
+        // Fill empty spots
+        yield return StartCoroutine(FillEmptySpots());
+        matches = FindMatches();
+      }
 
-      // Explode gems
-      yield return StartCoroutine(ExplodeGems(matches));
+      gridIsLocked = false;
 
       yield return null;
     }
@@ -175,6 +192,8 @@ namespace Match3 {
       grid.SetValue(gridPosA.x, gridPosA.y, gridObjectB);
       grid.SetValue(gridPosB.x, gridPosB.y, gridObjectA);
 
+      // Play SFX?
+
       yield return new WaitForSeconds(swapDuration);
     }
 
@@ -183,12 +202,46 @@ namespace Match3 {
         var gem = grid.GetValue(match.x, match.y).GetValue();
         grid.SetValue(match.x, match.y, null);
 
-        // Explode VFX
-
         gem.transform.DOPunchScale(Vector3.one * 0.1f, explodeDuration, 1, 0.5f);
+        // Explode VFX, SFX
 
         yield return new WaitForSeconds(explodeDuration);
         gem.DestroyGem();
+      }
+    }
+
+    IEnumerator MakeGemsFall() {
+      for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+          if (grid.GetValue(x, y) == null) {
+            for (int i = y + 1; i < height; i++) {
+              if (grid.GetValue(x, i) != null) {
+                var gem = grid.GetValue(x, i).GetValue();
+                grid.SetValue(x, y, grid.GetValue(x, i));
+                grid.SetValue(x, i, null);
+                gem.transform
+                  .DOLocalMove(grid.GetWorldPositionCenter(x, y), 0.5f)
+                  .SetEase(fallEase);
+
+                // Play SFX?
+                yield return new WaitForSeconds(0.1f);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    IEnumerator FillEmptySpots() {
+      for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+          if (grid.GetValue(x, y) == null) {
+            CreateGem(x, y);
+            // Play SFX?
+            yield return new WaitForSeconds(0.1f);
+          }
+        }
       }
     }
 
@@ -204,7 +257,6 @@ namespace Match3 {
             Gizmos.DrawCube(grid.GetWorldPositionCenter(x, y), new Vector3(1, 1, 1) * cellSize);
           }
         }
-
       }
     }
   }
