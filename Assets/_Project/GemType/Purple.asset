@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Purple
   m_EditorClassIdentifier: 
   sprite: {fileID: 1864100138, guid: 8dc277b6094997d4c938f5500e625977, type: 3}
+  color: {r: 1, g: 0, b: 0.92892265, a: 0.78431374}

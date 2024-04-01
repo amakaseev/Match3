@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Match3 {
 
-  public class Match3: MonoBehaviour {
+  public class Match3 : MonoBehaviour {
     [SerializeField] int width = 8;
     [SerializeField] int height = 8;
     [SerializeField] float cellSize = 1.0f;
@@ -15,6 +15,7 @@ namespace Match3 {
     [SerializeField] Gem gemPrefab;
     [SerializeField] GemType[] gemTypes;
     [SerializeField] float swapDuration = 0.5f;
+    [SerializeField] float explodeDuration = 0.05f;
     [SerializeField] Ease easeSelect = Ease.InQuad;
     [SerializeField] Ease easeSwap = Ease.OutBack;
 
@@ -58,8 +59,11 @@ namespace Match3 {
     void OnSelectedGem() {
       var gridPos = grid.GetXY(Camera.main.ScreenToWorldPoint(inputReader.Selected));
 
-      if (!IsValidatePosition(gridPos) || IsEmptyPosition(gridPos))
+      if (!IsValidatePosition(gridPos) || IsEmptyPosition(gridPos)) {
+        DeselectGem();
         return;
+      }
+        
 
       if (selectedGem == gridPos) {
         DeselectGem();
@@ -104,13 +108,13 @@ namespace Match3 {
       DeselectGem();
 
       // Swap gems
-      StartCoroutine(SwapGems(gridPosA, gridPosB));
+      yield return StartCoroutine(SwapGems(gridPosA, gridPosB));
 
       // Matches?
       List<Vector2Int> matches = FindMatches();
 
       // Explode gems
-      StartCoroutine(ExplodeGems(matches));
+      yield return StartCoroutine(ExplodeGems(matches));
 
       yield return null;
     }
@@ -125,9 +129,10 @@ namespace Match3 {
           var gemB = grid.GetValue(x + 1, y);
           var gemC = grid.GetValue(x + 2, y);
 
-          if (gemA == null || gemB == null || gemC == null) continue;
+          if (gemA == null || gemB == null || gemC == null)
+            continue;
 
-          if (gemA.GetValue().Type == gemB.GetValue().Type && gemC.GetValue().Type == gemC.GetValue().Type) {
+          if (gemA.GetValue().Type == gemB.GetValue().Type && gemB.GetValue().Type == gemC.GetValue().Type) {
             matches.Add(new Vector2Int(x, y));
             matches.Add(new Vector2Int(x + 1, y));
             matches.Add(new Vector2Int(x + 2, y));
@@ -145,16 +150,14 @@ namespace Match3 {
           if (gemA == null || gemB == null || gemC == null)
             continue;
 
-          if (gemA.GetValue().Type == gemB.GetValue().Type && gemC.GetValue().Type == gemC.GetValue().Type) {
+          if (gemA.GetValue().Type == gemB.GetValue().Type && gemB.GetValue().Type == gemC.GetValue().Type) {
             matches.Add(new Vector2Int(x, y));
             matches.Add(new Vector2Int(x, y + 1));
             matches.Add(new Vector2Int(x, y + 2));
           }
         }
       }
-
-
-
+      
       return new List<Vector2Int>(matches);
     }
 
@@ -176,8 +179,6 @@ namespace Match3 {
     }
 
     IEnumerator ExplodeGems(List<Vector2Int> matches) {
-      float explodeDuration = 0.1f;
-
       foreach (var match in matches) {
         var gem = grid.GetValue(match.x, match.y).GetValue();
         grid.SetValue(match.x, match.y, null);
@@ -192,7 +193,19 @@ namespace Match3 {
     }
 
     private void OnDrawGizmos() {
-      grid?.DebugDraw();
+      if (grid != null) {
+        grid.DebugDraw();
+        for (int x = 0; x < width; x++) {
+          for (int y = 0; y < height; y++) {
+            var gemA = grid.GetValue(x, y);
+            if (gemA == null)
+              continue;
+            Gizmos.color = gemA.GetValue().Type.color;
+            Gizmos.DrawCube(grid.GetWorldPositionCenter(x, y), new Vector3(1, 1, 1) * cellSize);
+          }
+        }
+
+      }
     }
   }
 

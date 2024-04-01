@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Yellow
   m_EditorClassIdentifier: 
   sprite: {fileID: -1830548848, guid: 8dc277b6094997d4c938f5500e625977, type: 3}
+  color: {r: 1, g: 0.96754205, b: 0, a: 0.78431374}
