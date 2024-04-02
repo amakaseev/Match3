@@ -9,6 +9,8 @@ namespace Match3 {
     [SerializeField] CanvasGroup gameUI;
     [SerializeField] Match3 gameBoardPrefab;
 
+    public int Score { get; private set; }
+
     Match3 gameBoard;
 
     private void Start() {
@@ -25,6 +27,10 @@ namespace Match3 {
         Destroy(gameBoard);
       }
       gameBoard = Instantiate<Match3>(gameBoardPrefab);
+    }
+
+    public void AddScore(int score) {
+      Score += score;
     }
   }
 }

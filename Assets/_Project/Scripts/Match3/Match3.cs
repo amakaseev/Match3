@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using SharedSources;
 using UnityEngine;
 
 namespace Match3 {
@@ -22,6 +23,8 @@ namespace Match3 {
 
     [SerializeField] GameObject spawnVfx;
     [SerializeField] GameObject explosionVfx;
+
+    [SerializeField] IntEventChanel scoreChanel;
 
     GameAudioManager audioManager;
 
@@ -132,6 +135,8 @@ namespace Match3 {
       // Matches?
       List<Vector2Int> matches = FindMatches();
       while (matches.Count > 0) {
+        scoreChanel.Invoke(matches.Count);
+
         // Explode gems
         yield return StartCoroutine(ExplodeGems(matches));
         // Make gems fall
