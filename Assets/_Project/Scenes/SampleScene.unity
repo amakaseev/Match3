@@ -323,7 +323,19 @@ MonoBehaviour:
   eventChanel: {fileID: 11400000, guid: d3ed4bcb5ab3e314a9d72677d1b38136, type: 2}
   unityEvent:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 542597305}
+        m_TargetAssemblyTypeName: Match3.GameManager, Assembly-CSharp
+        m_MethodName: AddScore
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &901494587
 GameObject:
   m_ObjectHideFlags: 0
@@ -392,23 +404,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1126877799 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7126671873929616931, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
-  m_PrefabInstance: {fileID: 1425206259383479340}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1126877806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1126877799}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7d79ada334718241ba83c103d1ebad1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!225 &1388395248 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 6659103837395268859, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
@@ -427,18 +422,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2360236305046916157, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
-    - target: {fileID: 2360236305046916157, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 2100000, guid: 125cb55b44b24c4393181402bc6200e6, type: 2}
-    - target: {fileID: 2360236305046916157, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
-      propertyPath: m_hasFontAssetChanged
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 3024253384082231594, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -523,10 +506,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3681552431642917081, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7126671873929616931, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
       propertyPath: m_Name
       value: Canvas
@@ -538,10 +517,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7126671873929616931, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1126877806}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c2bba216e3bec7145ab95c4be62f1057, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

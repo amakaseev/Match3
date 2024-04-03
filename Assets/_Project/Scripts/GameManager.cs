@@ -9,9 +9,19 @@ namespace Match3 {
     [SerializeField] CanvasGroup gameUI;
     [SerializeField] Match3 gameBoardPrefab;
 
+    public static GameManager Instance { get; private set; }
     public int Score { get; private set; }
 
     Match3 gameBoard;
+
+
+    private void Awake() {
+      if (Instance == null) {
+        Instance = this;
+      } else {
+        Destroy(gameObject);
+      }
+    }
 
     private void Start() {
       mainMenu.gameObject.SetActive(true);
